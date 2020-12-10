@@ -60,11 +60,12 @@ string ["]{s_char_sequence}*["]
 
     /* complex tokens */
 {string} {return TOK_STRING;}
-[+]([ \t]|{eol})*["]{s_char_sequence}["] {return TOK_STRING_TAIL;}
+[+]([ \t]|{eol})*["]{s_char_sequence}["] {yylvalreturn TOK_STRING_TAIL;}
 {integer} {return TOK_INTEGER;}
 {double} {return TOK_DOUBLE;}
+    /*identifier*/
 {non_digit}({digit}|{non_digit})* {return TOK_IDENTIFIER;}
-[$]{s_char_sequence}[$] {return TOK_STRING_IDENTIFIER}
+[$]{s_char_sequence}[$] {return TOK_STRING_IDENTIFIER;}
 
     /* whitespace */
 [ \t]+

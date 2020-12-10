@@ -16,6 +16,8 @@ int fileno(FILE *);
 
 %}
 
+%define api.value.type union
+
 %token TOK_L_BKT
 %token TOK_R_BKT
 %token TOK_L_PAR
@@ -43,12 +45,13 @@ int fileno(FILE *);
 %token TOK_EDGES
 %token TOK_TRUE
 %token TOK_FALSE
-%token TOK_STRING
-%token TOK_STRING_TAIL
+%token <std::string> TOK_STRING
+%token <std::string> TOK_STRING_TAIL
 %token TOK_INTEGER
 %token TOK_DOUBLE
-%token TOK_IDENTIFIER
-%token TOK_STRING_IDENTIFIER
+%token <std::string> TOK_IDENTIFIER
+%token <std::string> TOK_STRING_IDENTIFIER
+
 
 %%
 
@@ -58,7 +61,7 @@ graph_list
     ;
 
 graph_block
-    : TOK_IDENTIFIER name TOK_L_BKT block_star TOK_R_BKT
+    : TOK_IDENTIFIER {start_graph(); set_graph_type($1);} name {set_graph_name(yytext);} TOK_L_BKT block_star TOK_R_BKT {end_graph();}
     ;
 
 block_star
@@ -67,7 +70,7 @@ block_star
     ;
 
 block
-    : TOK_BASEDON basedon_body
+    : TOK_BASEDON basedon_body {current_graph->set_basedon(yytext);}
     | TOK_TOPOLOGY topology_body
     | TOK_INTERFACE interface_body
     | TOK_PARAMETER parameter_body
@@ -100,7 +103,7 @@ topology_list_star
     ;
 
 topology_list
-    : TOK_NODES TOK_EQUAL name node_identifier_tail_star TOK_SEMICOLON
+    : TOK_NODES TOK_EQUAL name {add_topology_node(yytext);}node_identifier_tail_star TOK_SEMICOLON
     | TOK_EDGES TOK_EQUAL edge_definition edge_definition_tail_star TOK_SEMICOLON
     ;
 
@@ -110,7 +113,7 @@ node_identifier_tail_star
     ;
 
 node_identifier_tail
-    : TOK_COMMA name
+    : TOK_COMMA name {add_topology_node(yytext);}
     ;
 
 edge_definition
